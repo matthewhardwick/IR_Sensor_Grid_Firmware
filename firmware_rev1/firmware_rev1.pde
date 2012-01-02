@@ -1,4 +1,13 @@
-
+/*
+ *
+ * These code snippets are from the Evil Mad Scientists Octolively Firmware.
+ * So credit goes to them. It is going to be modified to work with an Arduino
+ * with no network, and one LED mode. Additionally, it will be reconfigured to
+ * a 3x3 grid. 
+ *
+ * Currently is non functioning!
+ *
+ */
 
 void setup() {
   CLKPR = (1 << CLKPCE);        // enable clock prescaler update
