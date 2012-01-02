@@ -8,60 +8,56 @@
  * Currently is non functioning!
  *
  */
+ 
+#define sensors 9
+#define MAX_PROGRAMS 1
+
+typedef int (*ledHandler)(int, int, int);
+ 
+int8_t irPin[] = {3, 0, 0, 0, 0, 0, 0, 0, 0};
+int8_t photoPin[] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+int8_t ledPin[] = {9, 0, 0, 0, 0, 0, 0, 0, 0};
+
+int last_act[] = {0,0,0,0,0,0,0,0,0};
+ledHandler ledHandlers[] = {quick_fade};
+int compbuff[9];
+int8_t program = 0;
+
+int quick_fade(int ir, int activated, int current_val);
+
+#define DEFAULT_SENSITIVITY 2
+#define MAX_SENSITIVITY 4
+uint8_t sensitivity = DEFAULT_SENSITIVITY;
+
+int16_t slope(int ir, int16_t reading);
+int16_t filteredReading(int ir, int16_t reading);
+int _activate(int16_t slope, int mode);
+int activate(int ir, int16_t reading);
+int dispatch(int program, int ir, int activated, int current_val);
+int handle_ir(int ir, int16_t bright);
+int16_t readIR(uint8_t channel);
+void s_init();
 
 void setup() {
-//  CLKPR = (1 << CLKPCE);        // enable clock prescaler update
-//  CLKPR = 0;                    // set clock to maximum (= crystal)
-//
-//  __watchdog_reset();           // reset watchdog timer
-//  MCUSR &= ~(1 << WDRF);        // clear the watchdog reset flag
-//  WDTCSR |= (1<<WDCE)|(1<<WDE); // start timed sequence
-//  WDTCSR = 0x00;                // disable watchdog timer
 
-  // init PWM values
   int pwm = 0;
   int i;
-  for (i=0; i< 8; i++) {
-    compare[i] = pwm;
+  for (i=0; i < 9; i++) {
     compbuff[i] = pwm;
   }  
 
-//  DDRB  = ComOutputMask; // All B Inputs except for pin PB0, our output.
-//  PORTB = ComOutputMask | ComInputMask;		// Pull-ups on input lines, output line high to start.
-//
-//  DDRD  = 255; // All D outputs to LEDs
-//  PORTD = 0;
-//
-//  DDRC  = 255; // All C Outputs to IR LEDs
-//  PORTC = 0;
-//
-//  DDRA  = 0; // All A Inputs
-//  PORTA = 0;  
-//
-//  // Enable ADC, prescale at 128.
-//  ADCSRA = _BV(ADEN) |_BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
-//
-//  TCCR0A = 2;
-//  OCR0A = 128;
-//
-//  TIFR0 = (1 << TOV0);           // clear interrupt flag
-//  TIMSK0 = (1 << OCIE0A);         // enable overflow interrupt
-//  TCCR0B = (1 << CS00);         // start timer, no prescale
-//
-//  //TCCR0A |= _BV(WGM01);
-//
-//  
-//
-//  TIFR1 = (1 << TOV1);
-//  TIMSK1 = (1 << TOIE1);
-//  //TCCR1B |= (_BV(CS10) | _BV(CS11));
-//  TCCR1A = 0;
-//  TCCR1B = _BV(CS11);
+  // Setup Pins
+  for (int i = 0; i < 1; i++) {
+    pinMode(irPin[i],OUTPUT);
+    pinMode(8,OUTPUT);
+    pinMode(photoPin[i],INPUT);
+  }
+  
+  // Serial for Debug
+  Serial.begin(9600); 
 
-//  __enable_interrupt();         // enable interrupts
-
-  sensitivity = 0;
-  program = 0;
+  int16_t sensitivity = 0;
+  int16_t program = 0;
   s_init();
 }
 
@@ -69,15 +65,19 @@ void loop() {
 
   unsigned long clock = 0;
   int16_t bright = 0;
-
   int ir = 0;
+  unsigned long dimInterval = 75;
+  unsigned long lastDim = 0;
 
   while(1) {
+  int ir = 0;
+    while (ir < 1) {
 
-    while (ir < 3) {
-
+      
       // Reading IR Levels from Phototransistors
       bright = readIR(ir);
+      
+      
       if (bright >= 0) {
         int act = handle_ir(ir, bright);
         ir++;
@@ -87,6 +87,7 @@ void loop() {
       if (clock - lastDim > dimInterval) {
         // step fade routines
         lastDim = clock;
+        
         int j;
         for (j = 0; j< 8; j++) {
           compbuff[j] = dispatch(program, j, last_act[j], compbuff[j]);
@@ -101,13 +102,15 @@ void loop() {
 
 // For Reading the IR bounce back with the Phototransistors
 
+#define num_acd_readings 16
+
 int16_t readIR(uint8_t channel) {
   static int started = 0;
   static int i = 0;
   static uint16_t sum = 0;
 
   if (! started) {
-    PORTC = 1 << channel; // turn on IR LED
+    digitalWrite(irPin[channel],HIGH);
 
     sum = 0;
     i = 0;
@@ -115,7 +118,8 @@ int16_t readIR(uint8_t channel) {
   }
 
   while (i < num_acd_readings) {
-    int16_t v = _readIR(channel);
+    //int16_t v = _readIR(channel);
+    int16_t v = analogRead(photoPin[channel]);
 
     if (v < 0) {
       return -1;
@@ -125,35 +129,11 @@ int16_t readIR(uint8_t channel) {
     i++;
   }
 
-  PORTC = 0; // turn off IR LED
+  digitalWrite(irPin[channel],LOW);
   started = 0; // reset
 
   int16_t ret = (sum >> 1);
   return ret;
-}
-
-int16_t _readIR(uint8_t channel) {
-  static int started = 0;
-
-  if (! started) {
-    ADMUX = channel;
-    ADCSRA |= _BV(ADSC); // Start initial ADC cycle
-
-    started++;
-  }
-
-  if ((ADCSRA & _BV(ADSC)) != 0) {
-    // conversion not finished
-    return -1;
-  }
-
-  int16_t ADIn;
-  ADIn = ADCW;
-
-  // reset state
-  started = 0;
-
-  return ADIn;
 }
 
 int handle_ir(int ir, int16_t bright) {
@@ -169,6 +149,7 @@ int dispatch(int program, int ir, int activated, int current_val) {
 
   if (program < MAX_PROGRAMS) {
     return ledHandlers[program](ir, activated, current_val);
+    
   }
 
   return 0;
@@ -263,14 +244,31 @@ int16_t slope(int ir, int16_t reading) {
 }
 
 int quick_fade(int ir, int activated, int current_val) {
-  if (activated) {
-    // return 255;
-    return activated;
-  }
+//  if (activated) {
+//    // return 255;
+//    return activated;
+//  }
 
   if (current_val > 2) {
+    analogWrite(ledPin[ir],current_val - 3);
+    Serial.println(current_val);
     return current_val - 3;
   }
 
   return 0;
 }
+
+void s_init() {
+  int i, j;
+
+  for (i=0; i< 8; i++) {
+    for (j=0; j< nsamples; j++) {
+      samples[i][j] = 0;
+    }
+    for (j=0; j< 8; j++) {
+      asamples[i][j] = 0;
+    }
+  }
+}
+
+
