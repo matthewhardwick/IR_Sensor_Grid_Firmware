@@ -10,13 +10,13 @@
  */
 
 void setup() {
-  CLKPR = (1 << CLKPCE);        // enable clock prescaler update
-  CLKPR = 0;                    // set clock to maximum (= crystal)
-
-  __watchdog_reset();           // reset watchdog timer
-  MCUSR &= ~(1 << WDRF);        // clear the watchdog reset flag
-  WDTCSR |= (1<<WDCE)|(1<<WDE); // start timed sequence
-  WDTCSR = 0x00;                // disable watchdog timer
+//  CLKPR = (1 << CLKPCE);        // enable clock prescaler update
+//  CLKPR = 0;                    // set clock to maximum (= crystal)
+//
+//  __watchdog_reset();           // reset watchdog timer
+//  MCUSR &= ~(1 << WDRF);        // clear the watchdog reset flag
+//  WDTCSR |= (1<<WDCE)|(1<<WDE); // start timed sequence
+//  WDTCSR = 0x00;                // disable watchdog timer
 
   // init PWM values
   int pwm = 0;
@@ -26,39 +26,39 @@ void setup() {
     compbuff[i] = pwm;
   }  
 
-  DDRB  = ComOutputMask; // All B Inputs except for pin PB0, our output.
-  PORTB = ComOutputMask | ComInputMask;		// Pull-ups on input lines, output line high to start.
+//  DDRB  = ComOutputMask; // All B Inputs except for pin PB0, our output.
+//  PORTB = ComOutputMask | ComInputMask;		// Pull-ups on input lines, output line high to start.
+//
+//  DDRD  = 255; // All D outputs to LEDs
+//  PORTD = 0;
+//
+//  DDRC  = 255; // All C Outputs to IR LEDs
+//  PORTC = 0;
+//
+//  DDRA  = 0; // All A Inputs
+//  PORTA = 0;  
+//
+//  // Enable ADC, prescale at 128.
+//  ADCSRA = _BV(ADEN) |_BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
+//
+//  TCCR0A = 2;
+//  OCR0A = 128;
+//
+//  TIFR0 = (1 << TOV0);           // clear interrupt flag
+//  TIMSK0 = (1 << OCIE0A);         // enable overflow interrupt
+//  TCCR0B = (1 << CS00);         // start timer, no prescale
+//
+//  //TCCR0A |= _BV(WGM01);
+//
+//  
+//
+//  TIFR1 = (1 << TOV1);
+//  TIMSK1 = (1 << TOIE1);
+//  //TCCR1B |= (_BV(CS10) | _BV(CS11));
+//  TCCR1A = 0;
+//  TCCR1B = _BV(CS11);
 
-  DDRD  = 255; // All D outputs to LEDs
-  PORTD = 0;
-
-  DDRC  = 255; // All C Outputs to IR LEDs
-  PORTC = 0;
-
-  DDRA  = 0; // All A Inputs
-  PORTA = 0;  
-
-  // Enable ADC, prescale at 128.
-  ADCSRA = _BV(ADEN) |_BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0);
-
-  TCCR0A = 2;
-  OCR0A = 128;
-
-  TIFR0 = (1 << TOV0);           // clear interrupt flag
-  TIMSK0 = (1 << OCIE0A);         // enable overflow interrupt
-  TCCR0B = (1 << CS00);         // start timer, no prescale
-
-  //TCCR0A |= _BV(WGM01);
-
-  
-
-  TIFR1 = (1 << TOV1);
-  TIMSK1 = (1 << TOIE1);
-  //TCCR1B |= (_BV(CS10) | _BV(CS11));
-  TCCR1A = 0;
-  TCCR1B = _BV(CS11);
-
-  __enable_interrupt();         // enable interrupts
+//  __enable_interrupt();         // enable interrupts
 
   sensitivity = 0;
   program = 0;
