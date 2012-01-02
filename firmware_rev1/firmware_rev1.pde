@@ -244,10 +244,10 @@ int16_t slope(int ir, int16_t reading) {
 }
 
 int quick_fade(int ir, int activated, int current_val) {
-//  if (activated) {
-//    // return 255;
-//    return activated;
-//  }
+  if (activated) {
+    // return 255;
+    return activated;
+  }
 
   if (current_val > 2) {
     analogWrite(ledPin[ir],current_val - 3);
