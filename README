@@ -1,0 +1,22 @@
+This is the firmware for the Sensor grid used in the Sonoma State University iPad Darwin Hall mapping project. The goal of this firmware is to be able to control the mapping software on the iPad through glass using a sensor grid of IR Transmitters and IR Sensitive Phototransistors. It is based on the Octolively from Evil Mad Scientist. 
+
+The Original firmware for the Octolively can be found here:
+https://github.com/oskay/Octolively
+
+Both our Hardware and Software is based on their product. So to them we say thanks!
+
+This is a work in progress and is no where near completion! 
+
+Items used for this project:
+Grid of 3x3 IR Emitter/PhotoTransistors
+Arduino Mega ADK Edition (Ironic, I know using an ADK to control an iPad)
+Redpark Serial to iOS Cable
+
+Team Members:
+Matthew Hardwick
+David Tran
+Nina Delosreyes
+
+Special Thanks to Dr. Ali Kooshesh, Dr. Suzanne Rivoire, Dr. Bala Ravikumar, Tyler Moskowite from Make Labs, and Windell Oskay at Evil Mad Scientist.
+
+This is Open Source under the GNU License. 
