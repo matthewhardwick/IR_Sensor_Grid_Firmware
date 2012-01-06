@@ -9,7 +9,7 @@
  *
  */
  
-#define sensors 9
+#define sensors 1
 #define MAX_PROGRAMS 1
 
 typedef int (*ledHandler)(int, int, int);
@@ -20,7 +20,7 @@ int8_t ledPin[] = {9, 0, 0, 0, 0, 0, 0, 0, 0};
 
 int last_act[] = {0,0,0,0,0,0,0,0,0};
 ledHandler ledHandlers[] = {quick_fade};
-int compbuff[9];
+int compbuff[sensors];
 int8_t program = 0;
 
 int quick_fade(int ir, int activated, int current_val);
@@ -42,12 +42,12 @@ void setup() {
 
   int pwm = 0;
   int i;
-  for (i=0; i < 9; i++) {
+  for (i=0; i < sensors; i++) {
     compbuff[i] = pwm;
   }  
 
   // Setup Pins
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 1; i++) { // Replace 1 with sensors?
     pinMode(irPin[i],OUTPUT);
     pinMode(8,OUTPUT);
     pinMode(photoPin[i],INPUT);
@@ -71,7 +71,7 @@ void loop() {
 
   while(1) {
   int ir = 0;
-    while (ir < 1) {
+    while (ir < sensors) {
 
       
       // Reading IR Levels from Phototransistors
@@ -89,7 +89,7 @@ void loop() {
         lastDim = clock;
         
         int j;
-        for (j = 0; j< 8; j++) {
+        for (j = 0; j< sensors ; j++) {
           compbuff[j] = dispatch(program, j, last_act[j], compbuff[j]);
         }
       }
@@ -156,11 +156,16 @@ int dispatch(int program, int ir, int activated, int current_val) {
 }
 
 #define nsamples 14
-int16_t samples[8][nsamples];
+int16_t samples[sensors][nsamples];
 
 enum actstate {neg=1, pos};
-int activated[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-unsigned int actcount[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int activated[sensors];
+unsigned int actcount[sensors];
+
+for ( int i = 0 ; i < sensors; i++ ){
+  activated[i] = 0;
+  actcount[i]  = 0;
+  }
 
 int activate(int ir, int16_t reading) {
   int16_t s = filteredReading(ir, reading);
@@ -182,7 +187,7 @@ int activate(int ir, int16_t reading) {
   return a;
 }
 
-uint8_t cutoffs[] = {100, 50, 35, 20};
+uint8_t cutoffs[] = {100, 50, 35, 20}; //Sensitivity Control here
 
 int _activate(int16_t slope, int mode) {
   if (mode == pos && slope < 0) {
@@ -209,7 +214,7 @@ int _activate(int16_t slope, int mode) {
 }
 
 // #define nasamples 4
-int16_t asamples[8][8];
+int16_t asamples[sensors][8];
 unsigned int acounter = 0;
 int16_t filteredReading(int ir, int16_t reading) {
   uint8_t nasamples = (sensitivity <= 1 ? 8 : 4);
@@ -261,7 +266,7 @@ int quick_fade(int ir, int activated, int current_val) {
 void s_init() {
   int i, j;
 
-  for (i=0; i< 8; i++) {
+  for (i=0; i< sensors; i++) {
     for (j=0; j< nsamples; j++) {
       samples[i][j] = 0;
     }
@@ -271,4 +276,18 @@ void s_init() {
   }
 }
 
+// Rather than remember the mapping between number and 
+// state, we will use enum and call the state.
+enum GESTURE_TYPE{
+  //Control states
+  INVALID, BAD_READING, EMPTY, NULL
+  //Gestures
+};
 
+/*
+//Remember the predeclaration!
+GESTURE_TYPE read_gesture(){
+  // Read from samples[sensors][nsamples];
+  // Return gesture type
+}
+*/
