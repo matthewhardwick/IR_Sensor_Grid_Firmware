@@ -12,10 +12,10 @@ const uint8_t ledPin[]   = {9, 10, 11, 5,  0,  0,  0,  0, 0}; //Make sure its a 
   //Tweak this values depnding on WHERE this is setup.
   #define nsamples 5 //Longer values means more sample but long time between each light
   const uint16_t threshold[] = 
-    { 4600, 4500, 4800, 4000,
-      4800, 4800, 4800, 4800,
-      4800, 4800, 4800, 4800,
-      4800, 4800, 4800, 4800
+    { 4850, 5000, 5000, 4800,
+      0000, 0000, 0000, 0000,
+      0000, 0000, 0000, 0000,
+      0000, 0000, 0000, 0000
     };
   
   //#define threshold 4840
@@ -47,10 +47,8 @@ void loop() {
      //Test if the LEDS are placed correctly
      static uint8_t i,j;
      for( i = 255; i >=0 ; i-=8 ){
-       delay(20);
-       #if(SERIAL==1)
-         Serial.println(i);
-       #endif
+       //delay(20);
+       Serial.println(i);
        for ( j = 0 ; j < SENSORS ; ++j )
          analogWrite(ledPin[j],i);
      }
@@ -83,15 +81,60 @@ void loop() {
           analogWrite(ledPin[ir],light[ir]);
         }
         else if (light[ir] > 0 ){
-          light[ir] -=16;    // Large value faster fade
+          
+          if ( false /*light[ir] > 128*/ ) {
+            light[ir] = 128;    // Large value faster fade
+          }
+          
+          else {
+            //light[ir] -= 16; 
+            //light[ir]((light[ir]<<1)&255);
+            light[ir]>>=1;
+            /*
+            if ( light[ir] == 255 )
+              light[ir] = 192;
+            else if ( light[ir] == 192 ){
+              light[ir] = 128;
+            }
+            else if ( light[ir] == 128 ){
+              light[ir] = 64;
+            }
+            else if ( light[ir] == 64 ){
+              light[ir] = 48;
+            }
+            else if ( light[ir] == 48 ){
+              light[ir] = 32;
+            }
+            else if ( light[ir] == 32 ){
+              light[ir] = 24;
+            }
+            else if ( light[ir] == 24 ){
+              light[ir] = 16;
+            }
+            else if ( light[ir] == 16 ){
+              light[ir] = 8;
+            }
+            else if ( light[ir] == 8 ){
+              light[ir] = 4;
+            }
+            else if ( light[ir] == 4 ){
+              light[ir] = 2;
+            }
+            else if ( light[ir] == 2 ){
+              light[ir] = 1;
+            }
+            else
+              light[ir] = 0;
+            */
+          }
           if ( light[ir] < 0 )
             light[ir] = 0;
           analogWrite(ledPin[ir],light[ir]);
         }
         
         ir++;
-          Serial.println("");
-        delay(20);
+        Serial.println("");
+        //delay(20);
       }
 
    #endif
@@ -117,4 +160,3 @@ void loop() {
   }
   
 #endif
-
