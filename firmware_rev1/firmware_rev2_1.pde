@@ -1,24 +1,24 @@
 //Modified by David Tran
 
+//Change this to change the number of sensors for the device
 #define SENSORS 4
 #define DEBUG 0
  
-const uint8_t irPin[]    = {2,  4,  7,  8, 12, 13,  0,  0, 0};
-const uint8_t photoPin[] = {0,  1,  2,  3,  4,  5,  6,  7, 0}; //Analog pins, otherwise pointless.
+const uint8_t irPin[]    = {2,  4,  7,  8, 12, 13,  0,  0, 0}; //Input pin
+const uint8_t photoPin[] = {0,  1,  2,  3,  4,  5,  6,  7, 0}; //Output pin
 const uint8_t ledPin[]   = {9, 10, 11, 5,  0,  0,  0,  0, 0}; //Make sure its a PWM pin
 
 #if(DEBUG==0)
 
-  //Tweak this values depnding on WHERE this is setup.
-  #define nsamples 5 //Longer values means more sample but long time between each light
+  //Tweak this values depending on WHERE this is setup.
+  #define nsamples 5 
+  //Longer values means more sample but long time between each light
   const uint16_t threshold[] = 
     { 4850, 5000, 5000, 4800,
       0000, 0000, 0000, 0000,
       0000, 0000, 0000, 0000,
       0000, 0000, 0000, 0000
     };
-  
-  //#define threshold 4840
   
   int16_t samples[SENSORS][nsamples];
 
@@ -65,12 +65,12 @@ void loop() {
           Serial.println("Pin is:");
           Serial.println(ir);
         
-        //Grab next 14 sensors
-        digitalWrite(irPin[ir],HIGH);
+        //Grab next n sensors
+        digitalWrite(irPin[ir],HIGH); // Turn on sensor
         sum = readIR(ir);
           Serial.println("SUM is:");
           Serial.println(sum);
-        digitalWrite(irPin[ir],LOW);
+        digitalWrite(irPin[ir],LOW);  //Turn off sensor
    
         //calculate fade
         if ( sum < threshold[ir] ){
@@ -80,20 +80,14 @@ void loop() {
           light[ir] = 255;
           analogWrite(ledPin[ir],light[ir]);
         }
+        //Fade here
         else if (light[ir] > 0 ){
           
-          if ( false /*light[ir] > 128*/ ) {
-            light[ir] = 128;    // Large value faster fade
+          if ( light[ir] == 255 ) {
+            light[ir] = 192;
           }
-          
           else {
-            //light[ir] -= 16; 
-            //light[ir]((light[ir]<<1)&255);
-            light[ir]>>=1;
-            /*
-            if ( light[ir] == 255 )
-              light[ir] = 192;
-            else if ( light[ir] == 192 ){
+            if ( light[ir] == 192 ){
               light[ir] = 128;
             }
             else if ( light[ir] == 128 ){
@@ -125,16 +119,11 @@ void loop() {
             }
             else
               light[ir] = 0;
-            */
           }
-          if ( light[ir] < 0 )
-            light[ir] = 0;
           analogWrite(ledPin[ir],light[ir]);
         }
-        
         ir++;
         Serial.println("");
-        //delay(20);
       }
 
    #endif
