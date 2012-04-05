@@ -1,3 +1,4 @@
+
 /* This was the original octolively code forked from
  * https://github.com/oskay/Octolively
  * Modified for the Arduino.
@@ -131,14 +132,17 @@ void loop() {
    *
    * We will send (SENSORS>>3) + ((SENSORS&7)>0) chars
    */
+   
+   DEBUG Serial.print("Sending the char:");
 
   //Here will send all the full characters
   if ( LOOP_FULL != 0 ){
     for( i = 0 ; i < LOOP_FULL ; ++i ){
       send = 0;
       for( j = 0 ; j < 8 ; ++j )
-      send |= (((light[(i<<3)+j]==255)<<j));
+        send |= (((light[(i<<3)+j]==255)<<j));
       Serial.write(send);
+      DEBUG Serial.print(send);
       }
     }
 
@@ -146,9 +150,12 @@ void loop() {
   if ( LOOP_MIN != 0 ){
     send = 0;
     for( i = 0 ; i < LOOP_MIN ; ++i )
-    send |= (((light[(LOOP_FULL<<3)+i]==255)<<i));
+      send |= (((light[(LOOP_FULL<<3)+i]==255)<<i));
     Serial.write(send);
+    DEBUG Serial.print(send);
     }
+    
+  DEBUG Serial.println("");
 
   }
 
