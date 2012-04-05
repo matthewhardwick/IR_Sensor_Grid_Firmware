@@ -12,7 +12,7 @@
 /* Change SENSORS to change the number of sensors for the connected device
  * Please make sure that the const arrays contain at least that
  * many elements.
- 
+ *
  *
  *
  * For future reference, debugging is very useful BUT DO NOT
@@ -36,8 +36,6 @@ const uint8_t ledPin[]   = {9, 10, 11,  5,  0,  0,  0,  0,  0};
 /* This is the number of samples we will have.
  * Higher number means more samples but it will take more time
  * to finish reading all the samples.
- *
- * In total, we will take (nsample*SENSORS) samples.
  */
 
 #define nsamples 5
@@ -52,7 +50,7 @@ const uint8_t ledPin[]   = {9, 10, 11,  5,  0,  0,  0,  0,  0};
 
   const uint16_t threshold[] =
     {
-      4850, 5000, 3000, 4800,
+      4850, 4800, 4800, 4800,
       0000, 0000, 0000, 0000,
       0000, 0000, 0000, 0000,
       0000, 0000, 0000, 0000
@@ -107,7 +105,8 @@ void loop() {
 
         //Turning it off, aka fade
         else if ( light[ir] > 0){
-          light[ir] -= 1; //Fade Amount Here
+          if (!debug) light[ir] -= 1; //Fade amount here
+          DEBUG light[ir]>>=1;  //DEBUG Fade amount here
           analogWrite(ledPin[ir],light[ir]); //Write the state in
         }
         ir++; //Go to next sensor
