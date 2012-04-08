@@ -55,11 +55,14 @@ const uint8_t ledPin[]   = {2,  3,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13};
 #define nsamples 5
 
 //Null term for the transmission
-#define SEND_TERM \t
+#define SEND_TERM '\t'
 
 //Setting up the Serial...
 #include <SoftwareSerial.h>
 SoftwareSerial mySerial(0,1); //RX, TX
+
+//Delay Values (If we need delay)
+#define DELAY_CEIL 0
 
 //Data Structures
 
@@ -79,7 +82,6 @@ const uint16_t threshold[] = {
  */
 
 char output_ary[17];
-
 
 int16_t samples[SENSORS][nsamples];
 
@@ -115,6 +117,7 @@ void loop() {
   static uint8_t ir;
   static uint16_t sum;
   static int16_t light[SENSORS];
+  static uint8_t delay = 0;
 
   //Output parsing
   static unsigned char send;
@@ -181,11 +184,15 @@ void loop() {
     }
   */
 
-  for( int i = 0 ; i < SENSORS ; i++ )
-    output_ary[i] = ( (light[i]==255) + '0' );
+  if ( delay != DELAY_CEIL )
+    delay += 1;
+  else{
+    for( int i = 0 ; i < SENSORS ; i++ )
+      output_ary[i] = ( (light[i]==255) + '0' );
 
-  mySerial.print(output_ary,16);
-  mySerial.print(SEND_TERM);
+    mySerial.print(output_ary,16); //Here we send the binary information
+    mySerial.print(SEND_TERM);     //Terminator
+  }
 
   DEBUG Serial.println("");
 
