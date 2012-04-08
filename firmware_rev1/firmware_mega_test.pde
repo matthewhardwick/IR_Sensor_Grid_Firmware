@@ -1,4 +1,6 @@
-//Test code for Mega. All pin outs changed to match the device.
+/* Test code for Mega. All pin outs changed to match the device.
+ * Code is NOT TESTED!
+ */
 
 /* This was the original octolively code forked from
  * https://github.com/oskay/Octolively
@@ -7,7 +9,6 @@
  * Special thanks to Evil Mad Science
  *
  * Edited by Matthew Hardwick, David Tran
- *
  */
 
 /* Change SENSORS to change the number of sensors for the connected device
@@ -19,6 +20,10 @@
  */
 
 #define SENSORS 9
+
+/* DEBUG statements. Don't edit.
+ */
+
 #define debug 1
 #define DEBUG if (debug)
 
@@ -31,14 +36,13 @@
 #define LOOP_FULL (SENSORS>>3)
 #define LOOP_MIN  (SENSORS&7)
 
-
-//Input pin
+//Output pin
 const uint8_t irPin[]    = {22,  23,  24,  25, 26, 27, 28,  29,  30,  31,  32};
 
-//Output pin
+//Input pin
 const uint8_t photoPin[] = {0,  1,  2,  3,  4,  5,  6,  7,   8,   9,  10,  11};
 
-//Make sure its a PWM pin
+//Make sure its a PWM pin (Output)
 const uint8_t ledPin[]   = {2,  3,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13};
 
 /* This is the number of samples we will have.
@@ -50,21 +54,32 @@ const uint8_t ledPin[]   = {2,  3,  4,  5,  6,  7,  8,  9,  10,  11,  12,  13};
 
 #define nsamples 5
 
+//Null term for the transmission
+#define SEND_TERM \t
+
+//Setting up the Serial...
+#include <SoftwareSerial.h>
+SoftwareSerial mySerial(0,1); //RX, TX
+
 //Data Structures
 
 /* Tweak this value depending on WHERE this is setup.
  * This is the threshold value that determines if
  * the photo sensor should say it is "ON" or "OFF"
- *
  */
 
-const uint16_t threshold[] =
-{
-  5000, 5000, 5000, 4900,
+const uint16_t threshold[] = {
+  5000, 5000, 5000, 5000,
   5000, 5000, 5000, 5000,
   5000, 5000, 5000, 5000,
   5000, 5000, 5000, 5000
   };
+
+/* Output array. Don't forget the NULL terminator!
+ */
+
+char output_ary[17];
+
 
 int16_t samples[SENSORS][nsamples];
 
@@ -84,6 +99,14 @@ void setup() {
   DEBUG Serial.begin(9600);
   DEBUG Serial.println("Setup done!");
 
+  //Here we set up the buffer array...
+  for(uint8_t i = 0 ; i < 16; i++)
+    output_ary[i] = '0';
+
+  output_ary[16] = '\0';
+
+  //Setup Serial
+  mySerial.begin(9600);
   }
 
 void loop() {
@@ -136,6 +159,7 @@ void loop() {
    
    DEBUG Serial.print("Sending the char:");
 
+  /*
   //Here will send all the full characters
   if ( LOOP_FULL != 0 ){
     for( i = 0 ; i < LOOP_FULL ; ++i ){
@@ -155,7 +179,14 @@ void loop() {
     Serial.write(send);
     DEBUG Serial.print(send);
     }
-    
+  */
+
+  for( int i = 0 ; i < SENSORS ; i++ )
+    output_ary[i] = ( (light[i]==255) + '0' );
+
+  mySerial.print(output_ary,16);
+  mySerial.print(SEND_TERM);
+
   DEBUG Serial.println("");
 
   }
@@ -184,5 +215,3 @@ int readIR(int ir) {
   return(sum);
 
   }
-
-
