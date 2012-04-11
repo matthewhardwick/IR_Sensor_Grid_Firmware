@@ -59,8 +59,10 @@ const uint8_t ledPin[]   = {  2,  3,  4,  5,  6,  7,  8,  9, 10 };
 //Null term for the transmission
 #define SEND_TERM "z"
 
+char output_buffer[] = "000000000ABCDEF";
+
 //Delay Values (If we need delay)
-#define DELAY_CEIL 2
+#define DELAY_CEIL 20
 
 //Data Structures
 
@@ -83,6 +85,10 @@ int16_t samples[SENSORS][nsamples];
 //Prototype Function Calls
 int readIR(int ir);
 
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(0, 1); // RX, TX
+
 void setup() {
 
   // Setup Pins
@@ -94,6 +100,7 @@ void setup() {
 
   // Serial for Debug
   if ( (debug) || (serial) ) Serial.begin(9600);
+  //mySerial.begin(9600);
   DEBUG Serial.println("Setup done!");
 
   }
@@ -104,7 +111,7 @@ void loop() {
   static uint16_t ir;
   static uint16_t sum;
   static int16_t light[SENSORS];
-  static uint8_t delay = 0;
+  static uint16_t delay = 0;
 
   //Output parsing
   static unsigned char send;
@@ -176,16 +183,25 @@ void loop() {
     else{ //Here is where we actually send the char.
       delay = 0;
       DEBUG Serial.print("Sending the bits:");
+      //Serial.print("10123123123\n" );
       for( int i = 0 ; i < SENSORS ; i++ ){
-          Serial.write( (char)((light[i]>=240) + '0') );
+          output_buffer[i] = ((char)((light[i]>=240) + '0'));
+          //Serial.print( (char)((light[i]>=240) + '0') );
           DEBUG Serial.print( (char)((light[i]>=240) + '0') );
       }
+      //mySerial.write(output_buffer);
+      Serial.write(output_buffer);
+      //Serial.write("0010");
+      //Serial.print('\n');
       DEBUG Serial.println("");
     }
   
+  
+  
+  
   //Send delimit character
   
-  if (serial) Serial.write(SEND_TERM);
+  //if (serial) Serial.print(SEND_TERM);
   DEBUG Serial.print(SEND_TERM);
   DEBUG Serial.println("");
   //END of loop (REPEAT AGAIN!)
@@ -219,4 +235,3 @@ int readIR(int ir) {
   return(sum);
 
   }
-
