@@ -74,7 +74,7 @@ char output_buffer[] = "000000000ABCDEF";
  #define THE 60
 
 const uint16_t threshold[] = {
-  THE, THE, THE, THE, THE, THE, THE, 10, THE };
+  THE, THE, THE, THE, THE, THE, THE, THE, THE };
 
 /* Samples array.
  * Contains all the samples for this point in time.
@@ -151,30 +151,8 @@ void loop() {
   /* At this point we have sampled all the sensors
    * We will send out the information in chars.
    *
-   * We will send (SENSORS>>3) + ((SENSORS&7)>0) chars
+   * We will send out the string
    */
-
-  /*
-  //Here will send all the full characters
-  if ( LOOP_FULL != 0 ){
-    for( i = 0 ; i < LOOP_FULL ; ++i ){
-      send = 0;
-      for( j = 0 ; j < 8 ; ++j )
-      send |= (((light[(i<<3)+j]==255)<<j));
-      Serial.write(send);
-      DEBUG Serial.print(send);
-      }
-    }
-
-  //Here we will send the remaining character
-  if ( LOOP_MIN != 0 ){
-    send = 0;
-    for( i = 0 ; i < LOOP_MIN ; ++i )
-    send |= (((light[(LOOP_FULL<<3)+i]==255)<<i));
-    Serial.write(send);
-    DEBUG Serial.print(send);
-    }
-  */
   
   //Delay area for "slowing" down transmission.
   if (serial)
@@ -191,19 +169,13 @@ void loop() {
       }
       //mySerial.write(output_buffer);
       Serial.write(output_buffer);
+      Serial.write('\n');
       //Serial.write("0010");
       //Serial.print('\n');
+      DEBUG Serial.print(SEND_TERM);
       DEBUG Serial.println("");
     }
   
-  
-  
-  
-  //Send delimit character
-  
-  //if (serial) Serial.print(SEND_TERM);
-  DEBUG Serial.print(SEND_TERM);
-  DEBUG Serial.println("");
   //END of loop (REPEAT AGAIN!)
   }
 
