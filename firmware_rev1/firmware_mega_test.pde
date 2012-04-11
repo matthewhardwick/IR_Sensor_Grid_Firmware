@@ -140,7 +140,7 @@ void loop() {
 
     //Turning it off, aka fade
     else if ( light[ir] > 0){
-      if (!debug) light[ir] -= 4;        //Fade Amount Here
+      if (!debug) light[ir] -= 2;        //Fade Amount Here
       DEBUG light[ir]>>=1;               //DEBUG FADE
       analogWrite(ledPin[ir],light[ir]); //Write the state in
       }
@@ -161,17 +161,13 @@ void loop() {
     else{ //Here is where we actually send the char.
       delay = 0;
       DEBUG Serial.print("Sending the bits:");
-      //Serial.print("10123123123\n" );
       for( int i = 0 ; i < SENSORS ; i++ ){
           output_buffer[i] = ((char)((light[i]>=240) + '0'));
           //Serial.print( (char)((light[i]>=240) + '0') );
           DEBUG Serial.print( (char)((light[i]>=240) + '0') );
       }
-      //mySerial.write(output_buffer);
       Serial.write(output_buffer);
       Serial.write('\n');
-      //Serial.write("0010");
-      //Serial.print('\n');
       DEBUG Serial.print(SEND_TERM);
       DEBUG Serial.println("");
     }
