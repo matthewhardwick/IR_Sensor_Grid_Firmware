@@ -59,7 +59,8 @@ const uint8_t ledPin[]   = {  2,  3,  4,  5,  6,  7,  8,  9, 10 };
 //Null term for the transmission
 #define SEND_TERM "z"
 
-char output_buffer[] = "000000000ABCDEF";
+// Use 16bits here so proper comparision is done with NSString
+char output_buffer[] = "000000000ABCDEFG";
 
 //Delay Values (If we need delay)
 #define DELAY_CEIL 20
@@ -71,7 +72,10 @@ char output_buffer[] = "000000000ABCDEF";
  * the photo sensor should say it is "ON" or "OFF"
  */
  
- #define THE 60
+ // 180 - Good for High Lighting ( Darwin Lobby )
+ // 10 -  Good for Low Lighting
+ // 60 -  Good for SPR
+ #define THE 180
 
 const uint16_t threshold[] = {
   THE, THE, THE, THE, THE, THE, THE, THE, THE };
@@ -151,7 +155,7 @@ void loop() {
   /* At this point we have sampled all the sensors
    * We will send out the information in chars.
    *
-   * We will send out the string
+   * We will send 9 chars chars
    */
   
   //Delay area for "slowing" down transmission.
@@ -167,7 +171,6 @@ void loop() {
           DEBUG Serial.print( (char)((light[i]>=240) + '0') );
       }
       Serial.write(output_buffer);
-      Serial.write('\n');
       DEBUG Serial.print(SEND_TERM);
       DEBUG Serial.println("");
     }
